@@ -71,6 +71,8 @@ alter table products add column if not exists tracking_number text;
 alter table products add column if not exists supplier_order_id text;
 alter table products add column if not exists supplier_status text;
 
+create unique index if not exists products_supplier_product_id_idx on products(supplier_product_id);
+
 -- Demo catalog seed. Replace supplier URLs/images with your approved supplier listings before launch.
 insert into products (id,name,category,price,supplier_price,image_url,stock,active)
 values
