@@ -12,7 +12,16 @@ create table if not exists products (
  supplier_url text,
  stock integer not null default 0,
  active boolean not null default true,
- created_at timestamptz not null default now()
+ created_at timestamptz not null default now(),
+ supplier_product_id text,
+ supplier_name text default 'AliExpress',
+ supplier_variant_id text,
+ supplier_currency text default 'USD',
+ supplier_image_url text,
+ shipping_cost numeric(12,2) not null default 0,
+ tracking_number text,
+ supplier_order_id text,
+ supplier_status text
 );
 
 create table if not exists orders (
@@ -50,6 +59,17 @@ create policy "users can view own order items" on order_items for select using (
 alter table orders add column if not exists payment_reference text unique;
 alter table orders add column if not exists payment_status text not null default 'unpaid';
 alter table orders add column if not exists paid_at timestamptz;
+
+-- AliExpress / supplier metadata for imported products and fulfillment.
+alter table products add column if not exists supplier_product_id text;
+alter table products add column if not exists supplier_name text default 'AliExpress';
+alter table products add column if not exists supplier_variant_id text;
+alter table products add column if not exists supplier_currency text default 'USD';
+alter table products add column if not exists supplier_image_url text;
+alter table products add column if not exists shipping_cost numeric(12,2) not null default 0;
+alter table products add column if not exists tracking_number text;
+alter table products add column if not exists supplier_order_id text;
+alter table products add column if not exists supplier_status text;
 
 -- Demo catalog seed. Replace supplier URLs/images with your approved supplier listings before launch.
 insert into products (id,name,category,price,supplier_price,image_url,stock,active)
