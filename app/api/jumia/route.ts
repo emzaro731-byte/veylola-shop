@@ -18,7 +18,8 @@ async function getAdmin(request: Request) {
 }
 
 function meta(html: string, property: string) {
-  const re = new RegExp('<meta[^>]+(?:property|name)=["\\\']' + property + '["\\\'][^>]+content=["\\\']([^"\\\']+)["\\\']', "i");
+  const safe = property.replace(/[.*+?^$()|[\]\\]/g, "\\$&");
+  const re = new RegExp('<meta[^>]+(?:property|name)=["\\']' + safe + '["\\'][^>]+content=["\\']([^"\\']+)["\\']', "i");
   const m = html.match(re);
   return m?.[1]?.replace(/&amp;/g, "&").replace(/&quot;/g, '"') || "";
 }
@@ -31,19 +32,17 @@ export async function POST(request: Request) {
   if (!await getAdmin(request)) return NextResponse.json({ error: "Admin access required." }, { status: 403 });
   try {
     const { url } = await request.json();
-    if (!url || !/^https?:\\/\\/(?:www\\.)?jumia\\.[a-z.]+\\//i.test(url)) {
+    let parsed: URL;
+    try { parsed = new URL(url); } catch {
       return NextResponse.json({ error: "Enter a valid Jumia product URL." }, { status: 400 });
     }
-    const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, redirect: "follow" });
+    if (parsed.hostname.toLowerCase() !== "jumia.com.ng" && !parsed.hostname.toLowerCase().endsWith(".jumia.com.ng")) {
+      return NextResponse.json({ error: "Only Jumia Nigeria product URLs are supported." }, { status: 400 });
+    }
+    const response = await fetch(parsed.toString(), { headers: { "User-Agent": "Mozilla/5.0" }, redirect: "follow" });
     if (!response.ok) return NextResponse.json({ error: "Could not open the Jumia product page." }, { status: 502 });
     const html = await response.text();
-    return NextResponse.json({
-      product: {
-        name: title(html),
-        image: meta(html, "og:image"),
-        url: response.url
-      }
-    });
+    return NextResponse.json({ product: { name: title(html), image: meta(html, "og:image"), url: response.url } });
   } catch {
     return NextResponse.json({ error: "Could not read the Jumia product page." }, { status: 502 });
   }
@@ -65,18 +64,10 @@ export async function PUT(request: Request) {
     const retailPrice = Math.ceil(supplierPrice * (1 + markup / 100) / 100) * 100;
     const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!);
     const { data, error } = await supabase.from("products").insert({
-      name: name.slice(0, 180),
-      description: "Sourced from Jumia.",
-      category: "Jumia",
-      image_url: image || null,
-      supplier_image_url: image || null,
-      price: retailPrice,
-      supplier_price: supplierPrice,
-      supplier_url: url,
-      supplier_name: "Jumia",
-      supplier_currency: "NGN",
-      stock: 999,
-      active: true
+      name: name.slice(0, 180), description: "Sourced from Jumia.", category: "Jumia",
+      image_url: image || null, supplier_image_url: image || null, price: retailPrice,
+      supplier_price: supplierPrice, supplier_url: url, supplier_name: "Jumia",
+      supplier_currency: "NGN", stock: 999, active: true
     }).select().single();
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ product: data, retailPrice, profit: retailPrice - supplierPrice });
