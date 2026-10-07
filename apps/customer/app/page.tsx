@@ -3,6 +3,7 @@ import {useEffect,useState} from "react";
 import {createClient} from "@supabase/supabase-js";
 type Product={id:string;name:string;category:string;price:string;image:string;description:string;affiliate_url:string};
 export default function Home(){
+ // Supabase is created only in the browser effect so Render/Next.js never evaluates it during build.
  const [products,setProducts]=useState<Product[]>([]);
  useEffect(()=>{
   const supabase=createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!,process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
