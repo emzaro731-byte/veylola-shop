@@ -1,25 +1,46 @@
-# Veylola Finds — AliExpress Affiliate Website
+# Veylola Finds
 
-A mobile-first product discovery website designed to promote AliExpress products through affiliate links.
+Veylola now has two connected sites:
 
-## Add your affiliate links
+- **Customer store:** `veylola-shop`
+- **Admin publisher:** `veylola-admin`
 
-Open `app/page.tsx` and replace each:
-`PASTE_YOUR_ALIEXPRESS_AFFILIATE_LINK_HERE`
+Both use the same Supabase product database. Render supports deploying multiple apps from one monorepo by giving each service its own Root Directory. citeturn0search0
 
-with your real AliExpress affiliate tracking URL.
+## 1. Supabase
 
-You can also replace the product names, descriptions, prices and images in the same file.
+Run `supabase/schema.sql` in the Supabase SQL Editor.
 
-## Deploy on Render
+Then create your private admin login in Supabase Authentication > Users.
 
-This is a standard Next.js app. For a Render Web Service use:
-- Build command: `npm install && npm run build`
-- Start command: `npm start`
-- Branch: `main`
+## 2. Environment variables
 
-Render supports deploying Next.js as a web service, including server-side Next.js apps. See the official Render documentation.
+Add these variables to **both** Render services:
 
-## Affiliate disclosure
+`NEXT_PUBLIC_SUPABASE_URL`
+`NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-Keep the affiliate disclosure on the website and follow the terms of the AliExpress affiliate program and applicable advertising rules.
+Use your Supabase project values.
+
+## 3. Customer Render service
+
+Root Directory: `apps/customer`
+Build Command: `yarn install && yarn build`
+Start Command: `yarn start`
+
+## 4. Admin Render service
+
+Root Directory: `apps/admin`
+Build Command: `yarn install && yarn build`
+Start Command: `yarn start`
+
+## 5. How publishing works
+
+1. Sign in at the Admin site.
+2. Add the product name, image, price, description and AliExpress affiliate URL.
+3. Turn on **Publish on customer site**.
+4. Click **Publish product**.
+5. The product appears on the customer storefront.
+6. Customers click **View deal** and are sent to the AliExpress affiliate URL.
+
+The customer site does not expose the admin publishing controls.
