@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: veylola-shop
+    runtime: node
+    rootDir: apps/customer
+    buildCommand: yarn install && yarn build
+    startCommand: yarn start
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+
+  - type: web
+    name: veylola-admin
+    runtime: node
+    rootDir: apps/admin
+    buildCommand: yarn install && yarn build
+    startCommand: yarn start
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
