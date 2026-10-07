@@ -84,8 +84,8 @@ export async function PUT(request: Request) {
     }
     const supplierPriceNgn = supplierPriceUsd * usdToNgn;
     const retailPrice = Math.ceil(supplierPriceNgn * (1 + markup / 100) / 100) * 100;
-    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) return NextResponse.json({ error: "SUPABASE_SERVICE_ROLE_KEY is missing on the server." }, { status: 503 });
+    const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!);
+    if (!process.env.SUPABASE_SECRET_KEY) return NextResponse.json({ error: "SUPABASE_SECRET_KEY is missing on the server." }, { status: 503 });
 
     const image = p.product_main_image_url || p.product_main_image || "";
     const { data, error } = await supabase.from("products").upsert({
