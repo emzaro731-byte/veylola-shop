@@ -1,0 +1,47 @@
+-- Veylola Shop Supabase schema
+create extension if not exists "pgcrypto";
+
+create table if not exists products (
+ id uuid primary key default gen_random_uuid(),
+ name text not null,
+ description text,
+ category text,
+ image_url text,
+ price numeric(12,2) not null default 0,
+ supplier_price numeric(12,2) not null default 0,
+ supplier_url text,
+ stock integer not null default 0,
+ active boolean not null default true,
+ created_at timestamptz not null default now()
+);
+
+create table if not exists orders (
+ id uuid primary key default gen_random_uuid(),
+ user_id uuid references auth.users(id) on delete set null,
+ status text not null default 'pending',
+ customer_name text not null,
+ customer_email text not null,
+ shipping_address text not null,
+ total numeric(12,2) not null default 0,
+ created_at timestamptz not null default now()
+);
+
+create table if not exists order_items (
+ id uuid primary key default gen_random_uuid(),
+ order_id uuid not null references orders(id) on delete cascade,
+ product_id uuid references products(id) on delete set null,
+ product_name text not null,
+ quantity integer not null check (quantity > 0),
+ unit_price numeric(12,2) not null,
+ supplier_price numeric(12,2) not null
+);
+
+alter table products enable row level security;
+alter table orders enable row level security;
+alter table order_items enable row level security;
+
+create policy "public can view active products" on products for select using (active = true);
+create policy "users can view own orders" on orders for select using (auth.uid() = user_id);
+create policy "users can view own order items" on order_items for select using (
+ exists (select 1 from orders o where o.id = order_id and o.user_id = auth.uid())
+);
