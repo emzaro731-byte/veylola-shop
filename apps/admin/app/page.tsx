@@ -42,7 +42,7 @@ export default function Admin(){
    <input placeholder="Price e.g. ₦24,900" value={form.price} onChange={e=>setForm({...form,price:e.target.value})} required/>
    <textarea className="imageUrls" placeholder={"Product images — paste 3 to 10 image URLs, one per line (or comma-separated)"} value={form.image} onChange={e=>setForm({...form,image:e.target.value})} required/><small>Tip: add 3–10 images. The first image is the main product image.</small>
    <textarea placeholder="Short product description" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/>
-   <input type="url" placeholder="AliExpress affiliate URL" value={form.affiliate_url} onChange={e=>setForm({...form,affiliate_url:e.target.value})} required/>
+   <textarea placeholder={"Affiliate/JForce URL. Optional: add the normal Jumia website URL after ||\nExample: https://jforce.jumia.com.ng/s/xxxxx||https://www.jumia.com.ng/product-page.html"} value={form.affiliate_url} onChange={e=>setForm({...form,affiliate_url:e.target.value})} required/><small>For Jumia: use <b>JForce URL||full Jumia website URL</b>. The customer button opens the website URL, while the JForce link is kept separately for tracking.</small>
    <label className="check"><input type="checkbox" checked={form.published} onChange={e=>setForm({...form,published:e.target.checked})}/> Publish on customer store</label>
    <button disabled={busy}>{busy?"Saving…":editing?"Update product":"Publish product"}</button>{(editing||draftRestored)&&<button type="button" className="ghost wide" onClick={clearDraft}>Clear draft / Cancel edit</button>}{message&&<div className="message">{message}</div>}
   </form>
