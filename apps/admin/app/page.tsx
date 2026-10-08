@@ -40,7 +40,7 @@ export default function Admin(){
    <input placeholder="Product name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})} required/>
    <select value={form.category} onChange={e=>setForm({...form,category:e.target.value})}>{categories.filter(c=>c.active).map(c=><option key={c.id} value={c.name}>{c.name}</option>)}</select>
    <input placeholder="Price e.g. ₦24,900" value={form.price} onChange={e=>setForm({...form,price:e.target.value})} required/>
-   <input placeholder="Image URL (https://...)" value={form.image} onChange={e=>setForm({...form,image:e.target.value})} required/>
+   <textarea className="imageUrls" placeholder={"Product images — paste 3 to 10 image URLs, one per line (or comma-separated)"} value={form.image} onChange={e=>setForm({...form,image:e.target.value})} required/><small>Tip: add 3–10 images. The first image is the main product image.</small>
    <textarea placeholder="Short product description" value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/>
    <input type="url" placeholder="AliExpress affiliate URL" value={form.affiliate_url} onChange={e=>setForm({...form,affiliate_url:e.target.value})} required/>
    <label className="check"><input type="checkbox" checked={form.published} onChange={e=>setForm({...form,published:e.target.checked})}/> Publish on customer store</label>
