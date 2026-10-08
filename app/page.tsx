@@ -138,7 +138,7 @@ export default function Home() {
                 <p>{p.description}</p>
 
                 <div className="productFoot">
-                  <strong>{p.price}</strong>
+                  <strong>₦{Number(p.price).toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
 
                   <a
                     href={p.affiliate_url}
