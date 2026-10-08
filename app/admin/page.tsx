@@ -38,6 +38,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!supabase) return;
@@ -93,6 +94,21 @@ export default function AdminPage() {
   function resetForm() {
     setEditingId(null);
     setForm(emptyForm);
+    setImageFile(null);
+  }
+
+  async function uploadProductImage(file: File) {
+    if (!supabase) throw new Error("Supabase is not configured.");
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${crypto.randomUUID()}.${ext}`;
+    const { error } = await supabase.storage.from("product-images").upload(path, file, {
+      cacheControl: "3600",
+      upsert: false,
+      contentType: file.type,
+    });
+    if (error) throw error;
+    const { data } = supabase.storage.from("product-images").getPublicUrl(path);
+    return data.publicUrl;
   }
 
   async function saveProduct(e: React.FormEvent) {
@@ -106,30 +122,34 @@ export default function AdminPage() {
     setLoading(true);
     setMessage("");
 
-    const payload = {
-      name: form.name.trim(),
-      category: form.category.trim() || "Featured",
-      price: Number(form.price),
-      image: form.image.trim() || null,
+    try {
+      let imageUrl = form.image.trim() || null;
+      if (imageFile) imageUrl = await uploadProductImage(imageFile);
+
+      const payload = {
+        name: form.name.trim(),
+        category: form.category.trim() || "Featured",
+        price: Number(form.price),
+        image: imageUrl,
       description: form.description.trim() || null,
       affiliate_url: form.affiliate_url.trim() || null,
       published: form.published,
     };
 
-    const result = editingId
-      ? await supabase.from("products").update(payload).eq("id", editingId)
-      : await supabase.from("products").insert(payload);
+      const result = editingId
+        ? await supabase.from("products").update(payload).eq("id", editingId)
+        : await supabase.from("products").insert(payload);
 
-    setLoading(false);
+      if (result.error) throw result.error;
 
-    if (result.error) {
-      setMessage(result.error.message);
-      return;
+      setMessage(editingId ? "Product updated successfully." : "Product added successfully.");
+      resetForm();
+      loadProducts();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Could not upload/save product.");
+    } finally {
+      setLoading(false);
     }
-
-    setMessage(editingId ? "Product updated successfully." : "Product added successfully.");
-    resetForm();
-    loadProducts();
   }
 
   async function deleteProduct(id: string) {
@@ -190,7 +210,7 @@ export default function AdminPage() {
             <label>Product name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Wireless Bluetooth Earbuds" required /></label>
             <label>Category<input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Electronics" /></label>
             <label>Price<input type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="19.99" required /></label>
-            <label>Product image URL<input value={form.image} onChange={(e) => setForm({ ...form, image: e.target.value })} placeholder="https://..." /></label>
+            <label>Product image<div className="uploadBox"><input className="fileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => setImageFile(e.target.files?.[0] || null)} /><span>{imageFile ? imageFile.name : form.image ? "Current image saved · choose a new file to replace it" : "Choose image from your phone"}</span></div></label>
             <label className="wide">AliExpress affiliate URL<input value={form.affiliate_url} onChange={(e) => setForm({ ...form, affiliate_url: e.target.value })} placeholder="https://s.click.aliexpress.com/..." /></label>
             <label className="wide">Description<textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Short product description" rows={4} /></label>
           </div>
