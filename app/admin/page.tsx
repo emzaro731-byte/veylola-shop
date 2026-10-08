@@ -178,16 +178,18 @@ export default function AdminPage() {
 
   if (!user) {
     return (
-      <main className="center">
-        <form className="card login" onSubmit={login}>
-          <div className="logo">V</div>
-          <p className="eyebrow">VEYLOLA FINDS</p>
-          <h1>Admin dashboard</h1>
-          <p className="muted">Sign in to add and manage products.</p>
-          <input type="email" placeholder="Admin email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          <button disabled={loading}>{loading ? "Signing in..." : "Sign in"}</button>
+      <main className="center loginPage">
+        <div className="loginGlow glowOne" /><div className="loginGlow glowTwo" /><div className="loginGlow glowThree" />
+        <form className="card login loginGlass" onSubmit={login}>
+          <div className="loginTop"><div className="logo loginLogo">V</div><div className="statusDot">● Secure</div></div>
+          <p className="eyebrow">VEYLOLA • ADMIN</p>
+          <h1>Welcome back<span>.</span></h1>
+          <p className="muted">Sign in to manage your store, products and affiliate offers.</p>
+          <label className="loginLabel">Email<input className="loginInput" type="email" placeholder="admin@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
+          <label className="loginLabel">Password<input className="loginInput" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required /></label>
+          <button className="loginButton" disabled={loading}><span>{loading ? "Signing in..." : "Sign in to Veylola"}</span><b>→</b></button>
           {message && <div className="message error">{message}</div>}
+          <div className="loginFooter"><span>🔒 Protected admin access</span><span>Veylola</span></div>
         </form>
       </main>
     );
@@ -252,7 +254,7 @@ button{border:0;border-radius:14px;background:linear-gradient(135deg,#6258ff,#b6
 .message{margin-top:15px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.65);font-size:14px}.error{background:#ffe8ee;color:#ad1f4a}
 .list{margin-top:50px}.sectionHead{display:flex;justify-content:space-between;align-items:end;margin-bottom:17px}.table{display:flex;flex-direction:column;gap:11px}.row{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);box-shadow:0 14px 40px rgba(75,65,120,.09),inset 0 1px 0 #fff;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:22px;padding:13px;display:flex;align-items:center;gap:15px}
 .thumb{width:76px;height:76px;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#dfe5ff,#f7ddff);display:grid;place-items:center;font-weight:950;font-size:24px;color:#675eff;flex:none}.thumb img{width:100%;height:100%;object-fit:cover}.info{flex:1;display:flex;flex-direction:column;gap:5px}.info span,.info small{color:#70788d;font-size:12px}.rowActions{display:flex;gap:7px;flex-wrap:wrap}.rowActions button{font-size:12px;padding:9px 11px}.empty{text-align:center;color:#737b90}
-.center{display:grid;place-items:center;padding:20px}.login{width:min(440px,100%)}.login h1{font-size:42px;letter-spacing:-2px}.login input{margin-top:12px}.login button{width:100%;margin-top:15px}
+.center{display:grid;place-items:center;padding:20px}.loginPage{min-height:100vh!important;background:radial-gradient(circle at 20% 20%,rgba(111,94,255,.22),transparent 30%),radial-gradient(circle at 85% 30%,rgba(224,76,255,.2),transparent 28%),radial-gradient(circle at 55% 90%,rgba(25,211,176,.18),transparent 30%),linear-gradient(135deg,#eaf0ff,#fbf2ff 48%,#e9fff8);overflow:hidden}.loginGlow{position:absolute;border-radius:50%;filter:blur(35px);pointer-events:none}.glowOne{width:190px;height:190px;background:rgba(101,88,255,.34);top:12%;left:8%}.glowTwo{width:230px;height:230px;background:rgba(220,72,255,.28);right:5%;top:22%}.glowThree{width:170px;height:170px;background:rgba(24,205,170,.25);bottom:8%;left:20%}.loginGlass{position:relative;z-index:2;width:min(455px,100%);padding:34px;border-radius:32px;background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.38));border:1px solid rgba(255,255,255,.88);box-shadow:0 35px 100px rgba(68,54,130,.22),inset 0 1px 0 rgba(255,255,255,.98),inset 0 -1px 0 rgba(120,100,200,.08);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px)}.loginTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.loginLogo{width:66px;height:66px;border-radius:21px;font-size:29px;box-shadow:0 16px 35px rgba(102,76,240,.3)}.statusDot{font-size:12px;font-weight:900;color:#168d76;background:rgba(32,205,165,.12);border:1px solid rgba(32,205,165,.2);padding:8px 11px;border-radius:999px}.login h1{font-size:clamp(43px,10vw,58px);margin-bottom:10px}.login h1 span{background:linear-gradient(90deg,#655bff,#d04bff,#19c9a6);-webkit-background-clip:text;background-clip:text;color:transparent}.loginLabel{margin-top:17px}.loginInput{margin-top:0!important;background:rgba(255,255,255,.68);border:1px solid rgba(115,100,180,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 24px rgba(75,65,120,.05)}.loginInput:focus{border-color:#786cff;box-shadow:0 0 0 4px rgba(120,108,255,.12),0 10px 30px rgba(90,70,180,.08)}.loginButton{width:100%;margin-top:20px!important;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(100deg,#5d5aff,#9d52ff 55%,#18c8a5);box-shadow:0 16px 32px rgba(99,78,230,.25)}.loginButton b{font-size:22px}.loginFooter{display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(100,100,140,.12);color:#788096;font-size:11px;font-weight:800}.login .error{background:rgba(255,230,237,.78);border:1px solid rgba(220,80,110,.12)}.login h1{font-size:42px;letter-spacing:-2px}.login input{margin-top:12px}.login button{width:100%;margin-top:15px}
 @media(max-width:700px){.formGrid{grid-template-columns:1fr}.wide{grid-column:auto}.hero{align-items:flex-start;flex-direction:column}.row{align-items:flex-start;flex-wrap:wrap}.rowActions{width:100%}.topbar{margin:10px 10px 0;padding:0 14px}.actions a{display:none}.wrap{padding:35px 15px 60px}h1{letter-spacing:-2.5px}.card{padding:20px}}`}</style>
     </main>
   );
