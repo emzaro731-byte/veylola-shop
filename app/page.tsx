@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 type Product = {
@@ -14,24 +14,7 @@ type Product = {
   affiliate_url: string;
 };
 
-const CATEGORIES = [
-  "All",
-  "Phones & Accessories",
-  "Computers & Accessories",
-  "Electronics & Gadgets",
-  "Gaming",
-  "Smartwatches & Wearables",
-  "Fashion",
-  "Shoes",
-  "Bags & Jewelry",
-  "Beauty & Personal Care",
-  "Home & Living",
-  "Kitchen",
-  "Sports & Fitness",
-  "Automotive",
-  "Pet Supplies",
-  "Deals & Trending",
-];
+
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -42,7 +25,6 @@ export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [error, setError] = useState("");
   const [activeImage, setActiveImage] = useState<Record<string, number>>({});
-  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
     async function loadProducts() {
@@ -64,10 +46,7 @@ export default function Home() {
     loadProducts();
   }, []);
 
-  const visibleProducts = useMemo(() => {
-    if (activeCategory === "All") return products;
-    return products.filter((p) => p.category?.toLowerCase() === activeCategory.toLowerCase());
-  }, [products, activeCategory]);
+
 
   return (
     <main>
@@ -93,27 +72,14 @@ export default function Home() {
 
       <section id="deals" className="deals">
         <div className="sectionHead">
-          <div><p className="sectionEyebrow">SHOP BY CATEGORY</p><h2>Find what you need</h2></div>
-          <span className="smallNote">{visibleProducts.length} product{visibleProducts.length === 1 ? "" : "s"} shown</span>
-        </div>
-
-        <div className="categoryBar">
-          {CATEGORIES.map((category) => (
-            <button
-              key={category}
-              type="button"
-              className={activeCategory === category ? "category active" : "category"}
-              onClick={() => setActiveCategory(category)}
-            >
-              {category}
-            </button>
-          ))}
+          <div><p className="sectionEyebrow">VEYLOLA FINDS</p><h2>Featured products</h2></div>
+          <span className="smallNote">{products.length} product{products.length === 1 ? "" : "s"} shown</span>
         </div>
 
         {error && <div className="empty error">{error}</div>}
 
         <div className="grid">
-          {visibleProducts.map((p) => (
+          {products.map((p) => (
             <article className="product" key={p.id}>
               <div className="imageWrap">
                 {(() => {
@@ -126,7 +92,6 @@ export default function Home() {
                     ))}</div>}
                   </>;
                 })()}
-                <span className="tag">{p.category}</span>
               </div>
               <div className="productBody">
                 <h3>{p.name}</h3>
@@ -140,8 +105,8 @@ export default function Home() {
           ))}
         </div>
 
-        {!error && !visibleProducts.length && (
-          <div className="empty">No products in <strong>{activeCategory}</strong> yet. Choose another category or add products from the admin dashboard.</div>
+        {!error && !products.length && (
+          <div className="empty">No published products yet. Add products from the admin dashboard.</div>
         )}
       </section>
 
