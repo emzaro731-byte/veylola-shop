@@ -211,7 +211,7 @@ export default function AdminPage() {
           <div className="formGrid">
             <label>Product name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Wireless Bluetooth Earbuds" required /></label>
             <label>Category<input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Electronics" /></label>
-            <label>Price<input type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="19.99" required /></label>
+            <label>Price (₦)<input type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="19999" required /></label>
             <label>Product image<div className="uploadBox"><input className="fileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => setImageFile(e.target.files?.[0] || null)} /><span>{imageFile ? imageFile.name : form.image ? "Current image saved · choose a new file to replace it" : "Choose image from your phone"}</span></div></label>
             <label className="wide">AliExpress affiliate URL<input value={form.affiliate_url} onChange={(e) => setForm({ ...form, affiliate_url: e.target.value })} placeholder="https://s.click.aliexpress.com/..." /></label>
             <label className="wide">Description<textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Short product description" rows={4} /></label>
