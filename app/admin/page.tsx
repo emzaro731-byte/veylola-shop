@@ -9,6 +9,7 @@ type Product = {
   category: string;
   price: number | string;
   image: string | null;
+  image_urls?: string[] | null;
   description: string | null;
   affiliate_url: string | null;
   published: boolean;
@@ -38,7 +39,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   useEffect(() => {
     if (!supabase) return;
@@ -94,7 +95,7 @@ export default function AdminPage() {
   function resetForm() {
     setEditingId(null);
     setForm(emptyForm);
-    setImageFile(null);
+    setImageFiles([]);
   }
 
   async function uploadProductImage(file: File) {
@@ -124,13 +125,16 @@ export default function AdminPage() {
 
     try {
       let imageUrl = form.image.trim() || null;
-      if (imageFile) imageUrl = await uploadProductImage(imageFile);
+      if (imageFiles.length > 0 && (imageFiles.length < 3 || imageFiles.length > 10)) throw new Error("Please choose between 3 and 10 images.");
+      const uploadedImages = imageFiles.length > 0 ? await Promise.all(imageFiles.map(uploadProductImage)) : [];
+      if (uploadedImages.length > 0) imageUrl = uploadedImages[0];
 
       const payload = {
         name: form.name.trim(),
         category: form.category.trim() || "Featured",
         price: Number(form.price),
         image: imageUrl,
+        image_urls: uploadedImages.length > 0 ? uploadedImages : (form.image ? [form.image] : []),
       description: form.description.trim() || null,
       affiliate_url: form.affiliate_url.trim() || null,
       published: form.published,
@@ -212,7 +216,7 @@ export default function AdminPage() {
             <label>Product name<input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Wireless Bluetooth Earbuds" required /></label>
             <label>Category<input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Electronics" /></label>
             <label>Price (₦)<input type="number" min="0" step="0.01" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} placeholder="19999" required /></label>
-            <label>Product image<div className="uploadBox"><input className="fileInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => setImageFile(e.target.files?.[0] || null)} /><span>{imageFile ? imageFile.name : form.image ? "Current image saved · choose a new file to replace it" : "Choose image from your phone"}</span></div></label>
+            <label>Product images (3–10)<div className="uploadBox"><input className="fileInput" type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif" onChange={(e) => setImageFiles(Array.from(e.target.files || []).slice(0, 10))} /><span>{imageFiles.length ? `${imageFiles.length} image${imageFiles.length === 1 ? "" : "s"} selected` : form.image ? "Current image saved · choose 3–10 new images to replace them" : "Choose 3–10 images from your phone"}</span></div><small className="uploadHint">Select 3 to 10 photos. The first image becomes the main product photo.</small></label>
             <label className="wide">AliExpress affiliate URL<input value={form.affiliate_url} onChange={(e) => setForm({ ...form, affiliate_url: e.target.value })} placeholder="https://s.click.aliexpress.com/..." /></label>
             <label className="wide">Description<textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Short product description" rows={4} /></label>
           </div>
@@ -251,7 +255,7 @@ h1{font-size:clamp(40px,7vw,68px);letter-spacing:-4px;line-height:.98;margin:0 0
 input,textarea{width:100%;border:1px solid rgba(125,130,160,.22);border-radius:15px;padding:14px;background:rgba(255,255,255,.66);font:inherit;font-weight:500;outline:none;color:#172033;box-shadow:inset 0 2px 8px rgba(70,70,100,.04)}input:focus,textarea:focus{border-color:#8176ff;box-shadow:0 0 0 4px rgba(129,118,255,.13)}
 .check{margin-top:18px;display:flex;flex-direction:row;align-items:center;gap:9px}.check input{width:auto;accent-color:#7166ff}.buttons{display:flex;gap:10px;margin-top:20px}
 button{border:0;border-radius:14px;background:linear-gradient(135deg,#6258ff,#b653ff);color:white;padding:13px 18px;font-weight:900;cursor:pointer;box-shadow:0 10px 24px rgba(100,82,230,.22)}button:disabled{opacity:.6}.secondary{background:rgba(255,255,255,.72);color:#343c55;box-shadow:none;border:1px solid rgba(100,100,130,.12)}.danger{background:rgba(255,95,120,.13);color:#c62d55;box-shadow:none}
-.message{margin-top:15px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.65);font-size:14px}.error{background:#ffe8ee;color:#ad1f4a}
+.uploadHint{font-size:11px;color:#7b8295;font-weight:700}.message{margin-top:15px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.65);font-size:14px}.error{background:#ffe8ee;color:#ad1f4a}
 .list{margin-top:50px}.sectionHead{display:flex;justify-content:space-between;align-items:end;margin-bottom:17px}.table{display:flex;flex-direction:column;gap:11px}.row{background:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.8);box-shadow:0 14px 40px rgba(75,65,120,.09),inset 0 1px 0 #fff;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-radius:22px;padding:13px;display:flex;align-items:center;gap:15px}
 .thumb{width:76px;height:76px;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,#dfe5ff,#f7ddff);display:grid;place-items:center;font-weight:950;font-size:24px;color:#675eff;flex:none}.thumb img{width:100%;height:100%;object-fit:cover}.info{flex:1;display:flex;flex-direction:column;gap:5px}.info span,.info small{color:#70788d;font-size:12px}.rowActions{display:flex;gap:7px;flex-wrap:wrap}.rowActions button{font-size:12px;padding:9px 11px}.empty{text-align:center;color:#737b90}
 .center{display:grid;place-items:center;padding:20px}.loginPage{min-height:100vh!important;background:radial-gradient(circle at 20% 20%,rgba(111,94,255,.22),transparent 30%),radial-gradient(circle at 85% 30%,rgba(224,76,255,.2),transparent 28%),radial-gradient(circle at 55% 90%,rgba(25,211,176,.18),transparent 30%),linear-gradient(135deg,#eaf0ff,#fbf2ff 48%,#e9fff8);overflow:hidden}.loginGlow{position:absolute;border-radius:50%;filter:blur(35px);pointer-events:none}.glowOne{width:190px;height:190px;background:rgba(101,88,255,.34);top:12%;left:8%}.glowTwo{width:230px;height:230px;background:rgba(220,72,255,.28);right:5%;top:22%}.glowThree{width:170px;height:170px;background:rgba(24,205,170,.25);bottom:8%;left:20%}.loginGlass{position:relative;z-index:2;width:min(455px,100%);padding:34px;border-radius:32px;background:linear-gradient(145deg,rgba(255,255,255,.72),rgba(255,255,255,.38));border:1px solid rgba(255,255,255,.88);box-shadow:0 35px 100px rgba(68,54,130,.22),inset 0 1px 0 rgba(255,255,255,.98),inset 0 -1px 0 rgba(120,100,200,.08);backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px)}.loginTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.loginLogo{width:66px;height:66px;border-radius:21px;font-size:29px;box-shadow:0 16px 35px rgba(102,76,240,.3)}.statusDot{font-size:12px;font-weight:900;color:#168d76;background:rgba(32,205,165,.12);border:1px solid rgba(32,205,165,.2);padding:8px 11px;border-radius:999px}.login h1{font-size:clamp(43px,10vw,58px);margin-bottom:10px}.login h1 span{background:linear-gradient(90deg,#655bff,#d04bff,#19c9a6);-webkit-background-clip:text;background-clip:text;color:transparent}.loginLabel{margin-top:17px}.loginInput{margin-top:0!important;background:rgba(255,255,255,.68);border:1px solid rgba(115,100,180,.16);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 8px 24px rgba(75,65,120,.05)}.loginInput:focus{border-color:#786cff;box-shadow:0 0 0 4px rgba(120,108,255,.12),0 10px 30px rgba(90,70,180,.08)}.loginButton{width:100%;margin-top:20px!important;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(100deg,#5d5aff,#9d52ff 55%,#18c8a5);box-shadow:0 16px 32px rgba(99,78,230,.25)}.loginButton b{font-size:22px}.loginFooter{display:flex;justify-content:space-between;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid rgba(100,100,140,.12);color:#788096;font-size:11px;font-weight:800}.login .error{background:rgba(255,230,237,.78);border:1px solid rgba(220,80,110,.12)}.login h1{font-size:42px;letter-spacing:-2px}.login input{margin-top:12px}.login button{width:100%;margin-top:15px}
